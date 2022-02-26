@@ -1,7 +1,6 @@
 library(tidyverse)
 incra_trends <- read.csv("https://raw.githubusercontent.com/vera-institute/incarceration-trends/master/incarceration_trends.csv")
 
-state.name[which(state.abb == "AL")]
 
 # Map
 minority_pop <- incra_trends %>%
@@ -14,13 +13,13 @@ minority_pop <- incra_trends %>%
     mean_prison_total = mean(total_prison_pop, na.rm = TRUE),
     mean_perecentage_minority_prison = (mean_minority_prison_pop / mean_prison_total) * 100
   ) %>%
-  mutate(state = tolower(setNames(state.name, state.abb)[pull(minority_pop, state)]))
+  mutate(state = tolower(setNames(state.name, state.abb)[state]))
 
 state_shape <- map_data("state") %>%
   rename(state = region) %>%
   left_join(minority_pop, by = "state")
 
-ggplot(state_shape) +
+mapPlot <- ggplot(state_shape) +
   geom_polygon(
     mapping = aes(x = long, y = lat, group = group, fill = mean_perecentage_minority_prison),
     color = "white", # show state outlines
@@ -54,7 +53,7 @@ minority_pop_wa_overtime <- incra_trends %>%
     mean_perecentage_minority_jail = (mean_minority_jail_pop / mean_jail_total) * 100
   )
 
-ggplot(minority_pop_wa_overtime) +
+timePlot <- ggplot(minority_pop_wa_overtime) +
   geom_line(
     mapping = aes(x= year, y=mean_perecentage_minority_prison, color = "Prision Population"),
     key_glyph = "timeseries"
@@ -66,7 +65,6 @@ ggplot(minority_pop_wa_overtime) +
   labs(title = "Average Washigton Minority Prision & Jail Population from 1975 - 2018",
        y = "Average Population Percentage", color = "incarceration Facility") +
   theme_minimal()
-
 # Variables Count
 minority_prision_jail_pop <- incra_trends %>%
   rowwise() %>%
@@ -76,7 +74,7 @@ minority_prision_jail_pop <- incra_trends %>%
                                  latinx_jail_pop, aapi_jail_pop, na.rm = TRUE)) %>%
   select(minority_pop_prison, minority_pop_jail)
 
-ggplot(minority_prision_jail_pop) +
+variable_plot <- ggplot(minority_prision_jail_pop) +
   geom_point(
     mapping = aes(x = minority_pop_jail, y = minority_pop_prison),
     alpha = .3
@@ -92,6 +90,11 @@ ggplot(minority_prision_jail_pop) +
 
 # Summary Information
 # What is the minority prison population percentage for the latest year with viable data?
+# What is the population of each minority group for that year?
+# How many observations and variables does this data set have?
+summaryStat <- list()
+summaryStat$obs <- nrow(incra_trends) 
+summaryStat$var <- ncol(incra_trends)
 
 minority_prision_jail_pop_year <- incra_trends %>%
   rowwise() %>%
@@ -111,7 +114,8 @@ recent_minority_prision <- minority_prision_jail_pop_year %>%
     total_black_pop = sum(black_prison_pop, na.rm = TRUE),
     total_native_pop = sum(native_prison_pop, na.rm = TRUE),
     total_latinx_pop = sum(latinx_prison_pop, na.rm = TRUE),
-    total_latinx_pop = sum(aapi_prison_pop,total_prison_pop, na.rm = TRUE)
+    total_aapi_pop = sum(aapi_prison_pop, na.rm = TRUE),
+    total_other_pop = sum(other_race_prison_pop, na.rm = TRUE)
   ) %>%
   filter(is.nan(mean_prison_minority_pop) == FALSE) %>%
   filter(mean_prison_minority_pop != 0) %>%
@@ -119,7 +123,11 @@ recent_minority_prision <- minority_prision_jail_pop_year %>%
   tail(n=1) %>%
   summarise(
     minority_percentage = (mean_prison_minority_pop / total_prison) * 100,
-    black_percentage =  (total_black_pop / total_prison) * 100
+    black_percentage =  (total_black_pop / total_prison) * 100,
+    latinx_percentage =  (total_latinx_pop / total_prison) * 100,
+    appi_percentage =  (total_aapi_pop / total_prison) * 100,
+    native_percentage =  (total_native_pop / total_prison) * 100,
+    other_percentage =  (total_other_pop / total_prison) * 100,
   )
 
 # What year is the latest minority prison population statistic from?

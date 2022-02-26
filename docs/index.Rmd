@@ -1,28 +1,46 @@
 ---
-title: "index"
+title: "A3 Data Visualization for Incraceration Trend data"
+author: "Duy Nguyen (dnh7@uw.edu)"
+affliation: "INFO 201"
+date: "2/25/2022"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+source("../source/analysis.R")
 ```
 
-## R Markdown
+## Introduction
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This is a data visualization report build on top of the incraceration data collected by the Vera Institute. This dataset has `r summaryStat$obs` observations and `r summaryStat$var` variables. This visualization is primary focused exploring the pattern for **prison populations** across the U.S. Specifically, this report is intending to explore pattern revolving around **minority prison population** and the trends that it follow over overtime and in specific parts of the U.S. The reason this report is looking into **minority prison population** is because we want to show the incraceration problems plauging minority groups in America. We believe incraceration is a major problem among minorities, especially **black americans**. We are trying to use this data visualization to showcase the problem in a way for that is easy for most people to interpret.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+The variables from the Verta Institute this dataset is working upon are **black_prison_pop**, **native_prison_pop**, **other_race_prison_pop**,**latinx_prison_pop**, **aapi_prison_pop**, and **total_prison_pop**.This report is divided into 4 different sections.
+The first section looks into the prison population percentage for each minority group for the year with _viable data_ to report i.e., non-zero or not NaN values. The second section show a display of the minority prison population percentage for each U.S. States. The third section goes into detail for Washington state. In this section, we are comparing minority prision and jail data in Washington from 1970-2018. The final section looks into the relationship between minority jail population and minority prison population to identity a connection between those two variables.
 
-```{r cars}
-summary(cars)
+## Prison Population Statistics
+The latest year that there are _viable data_ i.e., non-zero or not NaN values to report for **minority prison population** statistics is **`r recent_minority_prision_year`**. In `r recent_minority_prision_year`, minority made up `r round(recent_minority_prision$minority_percentage, 2)`% of the total prisoners in the U.S. In that `r round(recent_minority_prision$minority_percentage,2)`%, `r round(recent_minority_prision$black_percentage,2)`% were black, `r round(recent_minority_prision$latinx_percentage,2)`% were latinx, `r round(recent_minority_prision$native_percentage,2)`% were native american, `r round(recent_minority_prision$appi_percentage,2)`% were Asian American/Pacific Islander, and `r round(recent_minority_prision$other_percentage,2)`% were other minority groups. 
+
+These statistics show us that black american is the largest minority group that incarcerated in the U.S. With knowing that minority make more than half of prison population, this show that black american is disproportionately likely to be incarcerated compares to White American or other minority groups.
+
+## Minority Prison Population Across U.S. States
+```{r mapPlot, echo=FALSE}
+plot(mapPlot)
 ```
 
-## Including Plots
+This map is showing the Minority Prison Population across. The _brighter_ the **blue** the more higher the percentage.There are also some states that do not have their data feature such as **Montana**, **Idaho**, **New Mexico**, **Kansas**, **Arkansas**, **Vermont**, and **Connecticut**. This was likely due to missing values for such states.
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+## Washington State Minority Jail and Prison Population 1970-2018
+```{r timeSeries, echo=FALSE}
+plot(timePlot)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+This plot showcase the Minority Jail and  Prison Population of Washington States between 1970 and 2018. The **green** line represent prison population and the **red** line represent the jail population. In this dataset, there seem to be data missing for **prison and jail population** before 1985.
+
+## Prison Population and Jail Population
+```{r Var, echo=FALSE}
+plot(variable_plot)
+```
+
+This plot showcase the Minority Jail and  Prison Population between 1970-2018. Overall, there is a clear positive association between jail population and prison population for minority. As jail population increase, prison population increase as well for minority group.
+
